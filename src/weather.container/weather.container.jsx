@@ -2,46 +2,63 @@ import React, { useEffect, useState } from "react";
 import axios from "axios";
 import "./weather.container.css";
 
-function Weather() {
-  const [data, setData] = useState("");
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
+class Weather extends React.Component {
+  constructor(props) {
+    super(props);
 
-  useEffect(() => {
-    getData();
-  }, []);
-
-  async function getData() {
-    await axios(
-      "api.openweathermap.org/data/2.5/forecast/daily?lat=35&lon=139&cnt=5&appid=da68121ee70f44aa5ee01ee020383b54"
-    )
-      .then((res) => setData(res.data))
-      .catch((error) => {
-        console.log("error");
-        setError(error);
-      })
-      .finally(() => setLoading(false));
+    this.state = {
+      items: [],
+      DataisLoaded: false,
+    };
   }
-  console.log(data);
 
-  //     "api.openweathermap.org/data/2.5/forecast/daily?lat=35&lon=139&cnt=5&appid=da68121ee70f44aa5ee01ee020383b54"
-  // icon url format: http://openweathermap.org/img/wn/10d@2x.png
+  componentDidMount() {
+    fetch(
+      "https://api.openweathermap.org/data/2.5/forecast?lat=40&lon=88&appid=da68121ee70f44aa5ee01ee020383b54"
+    )
+      .then((res) => res.json())
+      .then((json) => {
+        this.setState({
+          items: json.list,
+          DataisLoaded: true,
+        });
+      });
+  }
 
-  //return a map of the data to each object renders a weather box
-  //convert temp to faranheight
-  return (
-    <div className="day">
-      <h2 className="day-title">Tue</h2>
-      <img
-        className="image"
-        src="http://openweathermap.org/img/wn/10d@2x.png"
-      />
-      <div className="high-low">
-        <h2 className="high">80&#176;</h2>
-        <h2 className="low">40&#176;</h2>
+  render() {
+    return (
+      <div className="days-container">
+        {this.state.items.map((day, index) => {
+          let time = new Date(this.state.items[index].dt_txt);
+          let oldTime =
+            index > 0 ? new Date(this.state.items[index - 1].dt_txt) : null;
+          const weekArr = ["Sun", "Mon", "Tue", "Wed", "Thur", "Fri", "Sat"];
+
+          if (time.getDay() !== oldTime?.getDay()) {
+            return (
+              <div className="day" key={day.dt}>
+                <h2 className="day-title">{weekArr[time.getDay()]}</h2>
+                <img
+                  className="image"
+                  src={`http://openweathermap.org/img/wn/${day.weather[0].icon}@2x.png`}
+                />
+                <div className="high-low">
+                  <h2 className="high">
+                    {Math.round(((day.main.temp_max - 273.15) * 9) / 5 + 32)}
+                    &#176;
+                  </h2>
+                  <h2 className="low">
+                    {Math.round(((day.main.temp_min - 273.15) * 9) / 5 + 32)}
+                    &#176;
+                  </h2>
+                </div>
+              </div>
+            );
+          }
+        })}
       </div>
-    </div>
-  );
+    );
+  }
 }
 
 export default Weather;

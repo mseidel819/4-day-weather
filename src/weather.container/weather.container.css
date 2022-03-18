@@ -1,9 +1,16 @@
+.days-container {
+  display: flex;
+}
+
 .day {
   width: 150px;
   display: flex;
   flex-direction: column;
   align-items: center;
   padding: 15px 5px;
+}
+.day:first-child {
+  background-color: #ccc;
 }
 .image {
   margin-top: 15px;
